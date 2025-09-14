@@ -14,10 +14,16 @@ class Settings(BaseSettings):
     db_user: str
     db_password: str
 
+    # API keys
+    OPENAI_API_KEY: str
+    RETELL_API_KEY: str
+    SUPABASE_ANON_KEY: str
+    RETELL_WORKSPACE_ID: str
+
     class Config:
         env_file = ".env"   # load from .env file at project root
 
-
+# Singleton instance
 @lru_cache
 def get_settings():
     return Settings()

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, calls
+from app.routers import auth, calls, webhook
 from app.middleware.error_handler import ErrorHandlerMiddleware
 
 
@@ -20,6 +20,7 @@ app.add_middleware(ErrorHandlerMiddleware)
 # register routers
 app.include_router(auth.router)
 app.include_router(calls.router)
+app.include_router(webhook.router)
 
 @app.get("/health")
 async def health():

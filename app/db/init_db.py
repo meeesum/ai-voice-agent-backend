@@ -37,6 +37,8 @@ def create_tables():
         for table_name, ddl in TABLES.items():
             cur.execute(ddl)
             print(f"✅ {table_name} table ensured.")
+        cur.connection.commit()
+
 
 if __name__ == "__main__":
     create_tables()

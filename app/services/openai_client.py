@@ -1,7 +1,10 @@
-import openai
-from ..config import settings
+import json
+from openai import OpenAI
+from app.config import settings
 
-openai.api_key = settings.OPENAI_API_KEY
+# Initialize client once
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
 
 def generate_summary(transcript_text: str) -> dict:
     """
@@ -13,14 +16,15 @@ def generate_summary(transcript_text: str) -> dict:
     Return JSON: call_outcome, driver_status, current_location, eta, emergency_type, emergency_location, escalation_status
     """
 
-    resp = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0
-    )
-    content = resp.choices[0].message.content
     try:
-        import json
+        resp = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0
+        )
+        content = resp.choices[0].message.content
         return json.loads(content)
-    except:
+    except json.JSONDecodeError:
         return {"error": "Failed to parse summary"}
+    except Exception as e:
+        return {"error": str(e)}

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, JSON
+from sqlalchemy import Column, String, DateTime, JSON, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 import uuid
@@ -15,3 +15,12 @@ class Call(Base):
     transcript = Column(JSON, nullable=True)      # raw transcript
     summary = Column(JSON, nullable=True)         # structured summary
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    is_superuser = Column(Boolean, default=False)
