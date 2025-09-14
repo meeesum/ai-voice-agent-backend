@@ -1,35 +1,42 @@
-from app.db.session import get_db_connection
+# app/db/init_db.py
+from app.db.session import DBSession
 
-# Example: create tables
+TABLES = {
+    "users": """
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """,
+    "sessions": """
+        CREATE TABLE IF NOT EXISTS sessions (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            started_at TIMESTAMP DEFAULT NOW(),
+            ended_at TIMESTAMP
+        );
+    """,
+    "calls": """
+        CREATE TABLE IF NOT EXISTS calls (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            driver_name TEXT NOT NULL,
+            driver_phone TEXT NOT NULL,
+            load_number TEXT NOT NULL,
+            outcome TEXT,
+            transcript JSONB,
+            summary JSONB,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """
+}
+
 def create_tables():
-    conn = get_db_connection()
-    if not conn:
-        raise ConnectionError("Cannot connect to DB")
-    cur = conn.cursor()
-    
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW()
-    );
-    """)
-    
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS sessions (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id),
-        started_at TIMESTAMP DEFAULT NOW(),
-        ended_at TIMESTAMP
-    );
-    """)
-    
-    conn.commit()
-    cur.close()
-    conn.close()
-    print("✅ Tables created successfully!")
+    with DBSession() as cur:
+        for table_name, ddl in TABLES.items():
+            cur.execute(ddl)
+            print(f"✅ {table_name} table ensured.")
 
 if __name__ == "__main__":
     create_tables()
