@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/calls", tags=["calls"])
 @router.post("/", response_model=CallRead)
 async def create_call(call: CallCreate, user=Depends(get_current_user)):
     with DBSession() as cur:
-        call_id = uuid.uuid4()
+        call_id = str(uuid.uuid4()) 
         cur.execute(
             """
             INSERT INTO calls (id, driver_name, driver_phone, load_number)
@@ -61,7 +61,7 @@ async def retell_webhook(request: Request):
                 summary.get("call_outcome"),
                 payload,
                 summary,
-                call_id,
+                str(call_id),
             ),
         )
         result = cur.fetchone()
